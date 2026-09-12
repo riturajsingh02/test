@@ -625,13 +625,14 @@ img {
 }
 
 .mobile-brand-title {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-family: 'Monsieur La Doulaise', cursive;
+  font-size: 2.4rem;
   color: var(--maroon-light);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  margin: 0;
 }
 
 .mobile-brand-sub {
@@ -2148,6 +2149,7 @@ img {
    SMALL MOBILE SCREENS (380px and below)
    ------------------------------------------- */
 @media (max-width: 380px) {
+  .mobile-brand-title {font-size: 2rem;}
   .hero-brand-name { font-size: 3.2rem; }
   .card-media { height: 300px; }
   .pdp-media { height: 260px; }
