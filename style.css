@@ -4870,3 +4870,58 @@ select {
   }
 }
 
+/* =========================================================
+   NEW ARRIVALS HEADER - MOBILE INLINE LAYOUT
+   ========================================================= */
+@media (max-width: 768px) {
+  
+  /* Force the header to stay in a row on mobile */
+  #new-arrivals .editorial-header {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    gap: 10px !important;
+    margin-bottom: 1.5rem !important;
+    border-bottom: none !important; /* Removes the long border if present */
+  }
+
+  /* Left side container constraints */
+  #new-arrivals .header-left {
+    flex: 1 !important;
+    min-width: 0 !important; /* Prevents text from pushing view all off screen */
+  }
+
+  /* Pre-title "CURATED FOR YOU" formatting */
+  #new-arrivals .section-pretitle {
+    font-size: 0.55rem !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 0.2rem !important;
+    text-transform: uppercase !important;
+    color: var(--text-muted) !important;
+  }
+
+  /* Title "New arrivals" formatting */
+  #new-arrivals .section-title {
+    font-size: 1.8rem !important; /* Scaled down slightly to fit on phones */
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  /* Right side "VIEW ALL ->" formatting */
+  #new-arrivals .header-right {
+    flex-shrink: 0 !important;
+    margin-bottom: 4px !important; /* Visually aligns with the baseline of the title */
+  }
+
+  #new-arrivals .view-all-link {
+    font-size: 0.65rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    color: var(--text-dark) !important;
+    border-bottom: 1px solid var(--text-dark) !important; /* Solid thin underline */
+    padding-bottom: 2px !important;
+    display: inline-block !important;
+    transform: none !important; /* Removes the default hover slide on mobile */
+  }
+}
