@@ -4782,3 +4782,90 @@ select {
         padding: 0.45rem 0.4rem;
     }
 }
+
+
+/* =========================================================
+   SMARTPHONE UI OVERRIDES (TARGET DESIGN)
+   ========================================================= */
+@media (max-width: 768px) {
+  
+  /* 1. "Made for your rituals" -> 2x2 Grid Layout */
+  #rituals .rituals-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+    overflow: visible !important;
+  }
+
+  #rituals .ritual-card {
+    width: 100% !important;
+    height: 130px !important; /* Creates the landscape rectangle look */
+    flex: none !important;
+    padding: 0.8rem 0.6rem !important;
+    border-radius: 8px !important;
+  }
+
+  /* Adjust typography to fit the smaller cards */
+  #rituals .ritual-title {
+    font-size: 0.95rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  #rituals .ritual-sub {
+    font-size: 0.6rem !important;
+    margin-bottom: 0.1rem !important;
+  }
+
+  #rituals .ritual-link {
+    font-size: 0.55rem !important;
+  }
+
+  /* 2. "New Arrivals" -> Horizontal Swipe Layout */
+  #new-arrivals .product-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    
+    /* Bleeds the scroll to the edges of the screen */
+    margin-inline: -5% !important;
+    padding-inline: 5% !important;
+    padding-bottom: 1rem !important;
+    
+    /* Smooth iOS scrolling & snapping */
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important; /* Firefox */
+  }
+
+  #new-arrivals .product-grid::-webkit-scrollbar {
+    display: none !important; /* Chrome/Safari */
+  }
+
+  #new-arrivals .product-card {
+    /* Sets width so ~2.5 cards fit on screen, teasing the scroll */
+    flex: 0 0 160px !important; 
+    width: 160px !important;
+    scroll-snap-align: start !important;
+    border: none !important; 
+    box-shadow: none !important;
+  }
+
+  #new-arrivals .card-media {
+    height: 170px !important;
+    min-height: 170px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Cleans up the text area below the image */
+  #new-arrivals .card-body {
+    padding: 0.8rem 0.2rem !important;
+  }
+  
+  #new-arrivals .card-title {
+    font-size: 0.85rem !important;
+  }
+}
