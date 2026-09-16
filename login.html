@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Sign In — The Candleier</title>
+  <link rel="icon" type="image/x-icon" href="asset/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Monsieur+La+Doulaise&family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="nav-left-group">
+      <div class="nav-brand">
+        <a href="index.html">
+          <h1 class="brand-title">The Candleier</h1>
+          <span class="brand-tagline">Light Up Your Moments</span>
+        </a>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="tracking.html" class="action-btn" title="Track Order">Track Order</a>
+      <a href="signup.html" class="action-btn" title="Create Account">Sign Up</a>
+    </div>
+  </header>
+
+  <main style="padding: 5rem 1.5rem; display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    <div class="checkout-modal active" style="position: relative; top: auto; left: auto; transform: none; width: 100%; max-width: 460px; box-shadow: var(--shadow-lg);">
+      <span class="section-pretitle" style="text-align: center;">Welcome Back</span>
+      <h3 class="checkout-title" style="text-align: center; margin-bottom: 2rem;"> Sign In</h3>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" required placeholder="name@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" />
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-block" style="margin-top: 1.5rem;">Sign In</button>
+      </form>
+
+      <p style="text-align: center; font-size: 0.82rem; margin-top: 1.5rem; color: var(--text-muted);">
+        New to The Candleier? <a href="signup.html" style="color: var(--maroon-light); font-weight: 600; text-decoration: underline;">Create an account</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer" style="padding: 2rem 5%;">
+    <div class="footer-bottom" style="border: none; padding: 0; justify-content: center;">
+      <p>© 2026 The Candleier. All rights reserved.</p>
+    </div>
+  </footer>
+  <script src="js/pages/auth.js"></script>
+</body>
+</html>
