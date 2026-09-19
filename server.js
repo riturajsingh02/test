@@ -23,53 +23,94 @@ app.get('/api/reverse-geocode', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid latitude or longitude coordinates provided.' });
   }
 
+  // 1. Primary: Nominatim OpenStreetMap
   try {
     const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&addressdetails=1`;
     const response = await fetch(geoUrl, {
       headers: {
-        'User-Agent': 'TheCandleier/1.0 (concierge@thecandleier.com)'
+        'User-Agent': 'TheCandleier/1.0 (concierge@thecandleier.com)',
+        'Accept-Language': 'en'
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`Reverse geocoding provider responded with status ${response.status}`);
-    }
+    if (response.ok) {
+      const data = await response.json();
+      const addr = data.address || {};
 
-    const data = await response.json();
-    const addr = data.address || {};
+      const line1Parts = [
+        addr.house_number || addr.building || '',
+        addr.road || addr.street || addr.residential || ''
+      ].filter(Boolean);
 
-    const line1Parts = [
-      addr.house_number || addr.building || '',
-      addr.road || addr.street || addr.residential || ''
-    ].filter(Boolean);
+      const line2Parts = [
+        addr.suburb || addr.neighbourhood || addr.quarter || addr.commercial || '',
+        addr.city_district || addr.hamlet || ''
+      ].filter(Boolean);
 
-    const line2Parts = [
-      addr.suburb || addr.neighbourhood || addr.quarter || addr.commercial || '',
-      addr.city_district || addr.hamlet || ''
-    ].filter(Boolean);
+      const city = addr.city || addr.town || addr.village || addr.municipality || addr.state_district || addr.county || '';
+      const rawPostcode = (addr.postcode || '').replace(/\D/g, '');
+      const pincode = rawPostcode.length >= 6 ? rawPostcode.slice(0, 6) : rawPostcode;
 
-    const city = addr.city || addr.town || addr.village || addr.municipality || addr.state_district || addr.county || '';
-    const rawPostcode = (addr.postcode || '').replace(/\D/g, '');
-    const pincode = rawPostcode.length >= 6 ? rawPostcode.slice(0, 6) : rawPostcode;
-
-    res.json({
-      success: true,
-      data: {
+      const result = {
         address1: line1Parts.join(', ') || (data.name !== city ? data.name : ''),
         address2: line2Parts.join(', '),
         city: city,
         state: addr.state || '',
         pincode: pincode,
         country: addr.country || 'India'
+      };
+
+      return res.json({
+        success: true,
+        ...result,
+        data: result
+      });
+    }
+  } catch (err) {
+    console.warn('Nominatim reverse geocode lookup failed:', err.message);
+  }
+
+  // 2. Fallback: Photon Komoot OSM Mirror
+  try {
+    const photonUrl = `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}`;
+    const response = await fetch(photonUrl, {
+      headers: {
+        'User-Agent': 'TheCandleier/1.0',
+        'Accept-Language': 'en'
       }
     });
-  } catch (err) {
-    console.warn('Reverse geocoding lookup failed:', err.message);
-    res.status(502).json({
-      success: false,
-      error: 'Unable to determine street address from location coordinates. Please enter your address manually.'
-    });
+
+    if (response.ok) {
+      const pData = await response.json();
+      const props = pData.features?.[0]?.properties || {};
+      const line1 = [props.housenumber, props.street].filter(Boolean).join(' ') || props.name || '';
+      const line2 = [props.district, props.locality].filter(Boolean).join(', ');
+      const rawPostcode = (props.postcode || '').replace(/\D/g, '');
+      const pincode = rawPostcode.length >= 6 ? rawPostcode.slice(0, 6) : rawPostcode;
+
+      const result = {
+        address1: line1,
+        address2: line2,
+        city: props.city || props.town || props.county || '',
+        state: props.state || '',
+        pincode: pincode,
+        country: props.country || 'India'
+      };
+
+      return res.json({
+        success: true,
+        ...result,
+        data: result
+      });
+    }
+  } catch (pErr) {
+    console.warn('Photon reverse geocode lookup failed:', pErr.message);
   }
+
+  res.status(502).json({
+    success: false,
+    error: 'Unable to determine street address from location coordinates. Please enter your address manually.'
+  });
 });
 
 // Indian PIN code courier availability checker
