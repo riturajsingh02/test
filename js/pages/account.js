@@ -799,31 +799,50 @@
 
           try {
             const resp = await fetch(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
-            const data = await resp.json();
+            const jsonResp = await resp.json();
 
-            if (!resp.ok || !data.success) {
-              throw new Error(data.message || 'Reverse geocoding unavailable.');
+            if (!resp.ok || !jsonResp.success) {
+              throw new Error(jsonResp.error || jsonResp.message || 'Reverse geocoding unavailable.');
             }
+
+            const addr = jsonResp.data || jsonResp;
 
             // Autofill fields
-            if (line1Input && data.address1) line1Input.value = data.address1;
-            if (line2Input && data.address2) line2Input.value = data.address2;
-            if (cityInput && data.city) cityInput.value = data.city;
-            if (provinceSelect && data.state) {
-              const matchedState = matchIndianState(data.state);
-              if (matchedState) provinceSelect.value = matchedState;
+            if (line1Input && addr.address1) {
+              line1Input.value = addr.address1;
+              line1Input.classList.remove('is-invalid');
+              document.getElementById('errAddrLine1')?.classList.remove('visible');
             }
-            if (zipInput && data.pincode && /^[1-9][0-9]{5}$/.test(data.pincode)) {
-              zipInput.value = data.pincode;
+            if (line2Input && addr.address2) {
+              line2Input.value = addr.address2;
+            }
+            if (cityInput && addr.city) {
+              cityInput.value = addr.city;
+              cityInput.classList.remove('is-invalid');
+              document.getElementById('errAddrCity')?.classList.remove('visible');
+            }
+            if (provinceSelect && addr.state) {
+              const matchedState = matchIndianState(addr.state);
+              if (matchedState) {
+                provinceSelect.value = matchedState;
+                provinceSelect.classList.remove('is-invalid');
+                document.getElementById('errAddrProvince')?.classList.remove('visible');
+              }
+            }
+            if (zipInput && addr.pincode && /^[1-9][0-9]{5}$/.test(addr.pincode)) {
+              zipInput.value = addr.pincode;
+              zipInput.classList.remove('is-invalid');
+              document.getElementById('errAddrZip')?.classList.remove('visible');
             }
 
-            showLocationAlert('✓ Location detected successfully. Please review and verify before saving.', 'success');
+            showLocationAlert('✓ Location detected successfully. Please review and verify your address details before saving.', 'success');
 
             // Trigger PIN code serviceability check if PIN was filled
-            if (data.pincode && /^[1-9][0-9]{5}$/.test(data.pincode)) {
-              checkPincodeService(data.pincode);
+            if (addr.pincode && /^[1-9][0-9]{5}$/.test(addr.pincode)) {
+              checkPincodeService(addr.pincode);
             }
           } catch (fetchErr) {
+            console.warn('Reverse geocoding error:', fetchErr);
             showLocationAlert("We couldn't determine your exact street address. Please enter it manually.", 'warning');
           } finally {
             resetLocationBtn();
@@ -832,14 +851,16 @@
         (geoErr) => {
           resetLocationBtn();
           if (geoErr.code === geoErr.PERMISSION_DENIED) {
-            showLocationAlert('Location access was denied. Please enter your address manually.', 'warning');
+            showLocationAlert('Location access was denied. Please allow location permissions in your browser or enter your address manually.', 'warning');
           } else if (geoErr.code === geoErr.TIMEOUT) {
-            showLocationAlert('Location request timed out. Please enter your address manually.', 'warning');
+            showLocationAlert('Location request timed out. Please try again or enter your address manually.', 'warning');
+          } else if (geoErr.code === geoErr.POSITION_UNAVAILABLE) {
+            showLocationAlert('GPS location is currently unavailable on your device. Please enter your address manually.', 'warning');
           } else {
-            showLocationAlert("We couldn't determine your address. Please enter it manually.", 'warning');
+            showLocationAlert("We couldn't determine your address automatically. Please enter it manually.", 'warning');
           }
         },
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
       );
     });
 
