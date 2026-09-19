@@ -1199,7 +1199,7 @@
     const resultWrap = document.getElementById('trackingResultContainer');
     if (!form || !input || !resultWrap) return;
 
-    // Check query param (e.g. tracking.html?order=TC10234)
+    // Check query param (e.g. tracking.html?order=12345)
     const urlParams = new URLSearchParams(window.location.search);
     const orderQuery = urlParams.get('order') || urlParams.get('tracking') || urlParams.get('waybill');
     if (orderQuery) {
