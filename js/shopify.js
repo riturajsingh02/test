@@ -26,7 +26,19 @@
            addr.id === 'addr_101';
   }
 
-  // Immediate startup purge of legacy demo address from browser storage
+  // Helper to detect and strip legacy sample orders (TC10234, TC10189, etc.)
+  function isSampleOrder(order) {
+    if (!order) return false;
+    const str = `${order.id || ''} ${order.orderNumber || ''} ${order.name || ''}`.toLowerCase();
+    return str.includes('tc10234') ||
+           str.includes('tc10189') ||
+           str.includes('tc10235') ||
+           str.includes('tc10236') ||
+           str.includes('8920194') ||
+           str.includes('8710291');
+  }
+
+  // Immediate startup purge of legacy demo address and sample orders from browser storage
   try {
     [localStorage, sessionStorage].forEach(store => {
       ['thecandleier_cust_profile', 'candleier_customer', 'thecandleier_customer', 'candleier_saved_addresses'].forEach(k => {
@@ -46,6 +58,13 @@
               if (isSampleAddress(data.defaultAddress)) {
                 data.defaultAddress = (data.addresses && data.addresses[0]) || null;
                 changed = true;
+              }
+              if (Array.isArray(data.orders)) {
+                const cleanOrders = data.orders.filter(o => !isSampleOrder(o));
+                if (cleanOrders.length !== data.orders.length) {
+                  data.orders = cleanOrders;
+                  changed = true;
+                }
               }
               if (changed) {
                 store.setItem(k, JSON.stringify(data));
@@ -70,116 +89,7 @@
     tier: 'Sanctuary Connoisseur',
     defaultAddress: null,
     addresses: [],
-    orders: [
-      {
-        id: 'gid://shopify/Order/8920194',
-        orderNumber: 'TC10234',
-        name: '#TC10234',
-        processedAt: '2026-09-16T14:32:00Z',
-        financialStatus: 'PAID',
-        fulfillmentStatus: 'SHIPPED',
-        currencyCode: 'INR',
-        paymentMethod: 'UPI (Instant Confirmation)',
-        shippingAddress: {
-          name: '',
-          address1: '',
-          address2: '',
-          city: '',
-          province: '',
-          zip: '',
-          country: 'India',
-          phone: ''
-        },
-        tracking: {
-          courier: 'Bluedart Express',
-          trackingNumber: 'BLUEDART-9842105',
-          trackingUrl: 'https://www.bluedart.com',
-          status: 'Out for Delivery',
-          statusCode: 'out_for_delivery',
-          estimatedDelivery: '18 September 2026',
-          destination: 'New Delhi, Delhi',
-          timeline: [
-            { step: 'Order Confirmed', description: 'Artisan order verified and scheduled for pouring', date: '16 Sep 2026, 02:45 PM', completed: true },
-            { step: 'Micro-Batch Pouring & Curing', description: 'Handcrafted with botanical soy wax & IFRA oils', date: '16 Sep 2026, 06:15 PM', completed: true },
-            { step: 'Dispatched & In Transit', description: 'Handed over to Bluedart logistics hub', date: '17 Sep 2026, 09:20 AM', completed: true },
-            { step: 'Out for Delivery', description: 'Courier executive is en route to your delivery address', date: '18 Sep 2026, 08:30 AM', active: true, completed: false },
-            { step: 'Delivered', description: 'Package handed over with secure OTP', date: 'Estimated by 04:00 PM today', completed: false }
-          ]
-        },
-        lineItems: [
-          {
-            id: 'line_1',
-            title: 'Golden Glow Votives – Set of 2',
-            variantTitle: 'Natural Botanical Soy Wax (30-55 Hours)',
-            quantity: 1,
-            price: 279,
-            image: 'asset/one.jpg'
-          },
-          {
-            id: 'line_2',
-            title: 'Diamond Glow Jar – Amber',
-            variantTitle: 'Warm Cashmere & Amber (50 Hours)',
-            quantity: 1,
-            price: 849,
-            image: 'asset/second.jpg'
-          }
-        ],
-        subtotalPrice: 1128,
-        shippingPrice: 0,
-        totalTax: 171,
-        totalPrice: 1128
-      },
-      {
-        id: 'gid://shopify/Order/8710291',
-        orderNumber: 'TC10189',
-        name: '#TC10189',
-        processedAt: '2026-08-28T11:15:00Z',
-        financialStatus: 'PAID',
-        fulfillmentStatus: 'DELIVERED',
-        currencyCode: 'INR',
-        paymentMethod: 'Credit Card (Visa)',
-        shippingAddress: {
-          name: '',
-          address1: '',
-          address2: '',
-          city: '',
-          province: '',
-          zip: '',
-          country: 'India',
-          phone: ''
-        },
-        tracking: {
-          courier: 'Delhivery Surface',
-          trackingNumber: 'DELHIVERY-4481029',
-          trackingUrl: 'https://www.delhivery.com',
-          status: 'Delivered',
-          statusCode: 'delivered',
-          estimatedDelivery: '31 August 2026',
-          destination: 'New Delhi, Delhi',
-          timeline: [
-            { step: 'Order Confirmed', description: 'Order confirmed and verified', date: '28 Aug 2026', completed: true },
-            { step: 'Micro-Batch Pouring', description: 'Handcrafted in artisan workshop', date: '28 Aug 2026', completed: true },
-            { step: 'Dispatched', description: 'Dispatched via Delhivery Express', date: '29 Aug 2026', completed: true },
-            { step: 'Out for Delivery', description: 'Out for delivery', date: '31 Aug 2026', completed: true },
-            { step: 'Delivered', description: 'Delivered to resident at recipient address', date: '31 Aug 2026, 03:20 PM', completed: true }
-          ]
-        },
-        lineItems: [
-          {
-            id: 'line_3',
-            title: 'Classic Pillar – Black – 9"',
-            variantTitle: 'Obsidian Velvet & Midnight Oud',
-            quantity: 1,
-            price: 1549,
-            image: 'asset/four.jpg'
-          }
-        ],
-        subtotalPrice: 1549,
-        shippingPrice: 0,
-        totalTax: 236,
-        totalPrice: 1549
-      }
-    ]
+    orders: []
   };
 
   const ShopifyService = {
@@ -619,6 +529,13 @@
             parsed.defaultAddress = (parsed.addresses && parsed.addresses[0]) || null;
             changed = true;
           }
+          if (Array.isArray(parsed.orders)) {
+            const cleanOrders = parsed.orders.filter(o => !isSampleOrder(o));
+            if (cleanOrders.length !== parsed.orders.length) {
+              parsed.orders = cleanOrders;
+              changed = true;
+            }
+          }
           if (changed) {
             try {
               localStorage.setItem(CUST_CACHE_KEY, JSON.stringify(parsed));
@@ -684,7 +601,7 @@
     // 6. Orders
     async getOrders() {
       const cust = await this.getCustomer();
-      return cust?.orders || [];
+      return (cust?.orders || []).filter(o => !isSampleOrder(o));
     },
 
     async getOrder(orderIdOrNumber) {
@@ -748,23 +665,6 @@
           destination: match.tracking.destination || 'India',
           timeline: match.tracking.timeline || [],
           items: match.lineItems
-        };
-      }
-
-      // Generic order number recognition (e.g. TC10234 demo check)
-      if (queryClean === 'tc10234' || queryClean === '10234' || queryClean.includes('9842105')) {
-        return {
-          found: true,
-          orderNumber: '#TC10234',
-          courier: 'Bluedart Express',
-          trackingNumber: 'BLUEDART-9842105',
-          trackingUrl: 'https://www.bluedart.com',
-          status: 'Out for Delivery',
-          statusCode: 'out_for_delivery',
-          estimatedDelivery: '18 September 2026',
-          destination: 'Gurugram, Haryana',
-          items: DEMO_CUSTOMER.orders[0].lineItems,
-          timeline: DEMO_CUSTOMER.orders[0].tracking.timeline
         };
       }
 
